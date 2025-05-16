@@ -12,6 +12,8 @@ from django.http import HttpResponse
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import get_user_model
 from django.contrib.auth import login
+from django.core.mail import send_mail
+from core.utils import send_welcome_email
 
 def register_view(request):
     if request.method == 'POST':
@@ -33,11 +35,14 @@ def register_view(request):
             to_email = form.cleaned_data.get('email')
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.send()
+
+            # Send welcome email
+            
+            
             return render(request, 'accounts/please_check_email.html')
     else:
         form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
-
 
 
 def activate_account(request, uidb64, token):
@@ -51,6 +56,9 @@ def activate_account(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
+
+        send_welcome_email(user)
+
         return redirect('dashboard')
     else:
         return HttpResponse('Activation link is invalid!')

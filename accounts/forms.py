@@ -4,22 +4,28 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from .models import CustomUser
 
-
 class CustomUserCreationForm(UserCreationForm):
-    is_employer = forms.BooleanField(required=False, label='Register as Employer')
-    is_seeker = forms.BooleanField(required=False, label='Register as Job Seeker')
+    ROLE_CHOICES = (
+        ('seeker', 'Job Seeker'),
+        ('employer', 'Employer'),
+    )
+    role = forms.ChoiceField(
+        choices=ROLE_CHOICES,
+        widget=forms.RadioSelect,
+        label='Register as'
+    )
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'email', 'password1', 'password2', 'is_employer', 'is_seeker']
+        fields = ['username', 'email', 'password1', 'password2', 'role']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name in self.fields:
-            if field_name in ['is_employer', 'is_seeker']:
-                self.fields[field_name].widget.attrs.update({'class': 'form-check-input'})  # Checkboxes
+            if field_name == 'role':
+                self.fields[field_name].widget.attrs.update({'class': 'form-check-input'})
             else:
-                self.fields[field_name].widget.attrs.update({'class': 'form-control'})  # Regular inputs
+                self.fields[field_name].widget.attrs.update({'class': 'form-control'})
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -29,14 +35,11 @@ class CustomUserCreationForm(UserCreationForm):
             raise forms.ValidationError("Enter a valid email address.")
         return email
 
-    def clean(self):
-        cleaned_data = super().clean()
-        is_employer = cleaned_data.get("is_employer")
-        is_seeker = cleaned_data.get("is_seeker")
-
-        if is_employer and is_seeker:
-            raise forms.ValidationError("You cannot register as both Employer and Job Seeker.")
-        if not is_employer and not is_seeker:
-            raise forms.ValidationError("Please select either Employer or Job Seeker.")
-
-        return cleaned_data
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        role = self.cleaned_data.get('role')
+        user.is_employer = (role == 'employer')
+        user.is_seeker = (role == 'seeker')
+        if commit:
+            user.save()
+        return user
