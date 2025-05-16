@@ -1,49 +1,90 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="container mt-5">
-        <h2>Employer Dashboard</h2>
+<div class="container mt-5">
+    <h2>Employer Dashboard</h2>
 
-        <p>
-            <a href="{% url 'job_create' %}" class="btn btn-primary">Post New Job</a>
-        </p>
+    <!-- Post New Job Button -->
+    <div class="mb-4">
+        <a href="{% url 'job_create' %}" class="btn btn-primary">Post New Job</a>
+    </div>
 
-        <h3>Your Jobs</h3>
-        {% if jobs %}
-            <ul class="list-group mb-4">
-                {% for job in jobs %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
+    <!-- Jobs Posted by Employer -->
+    <h3>Your Jobs</h3>
+    {% if jobs %}
+        <ul class="list-group mb-4">
+            {% for job in jobs %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
                         <span>{{ job.title }}</span>
                         <div>
                             <a href="{% url 'job_detail' job.id %}" class="btn btn-sm btn-info mr-2">View</a>
                             <a href="{% url 'job_update' job.id %}" class="btn btn-sm btn-secondary mr-2">Edit</a>
                             <a href="{% url 'job_delete' job.id %}" class="btn btn-sm btn-danger">Delete</a>
                         </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No jobs posted yet.</p>
-        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No jobs posted yet.</p>
+    {% endif %}
 
-        <h3>Applications</h3>
-        {% if applications %}
-            <ul class="list-group mb-4">
-                {% for app in applications %}
-                    <li class="list-group-item">
-                         {{ app.seeker.username }} applied to "{{ app.job.title }}" - Status: {{ app.status }}
-                        {# TODO: Add link to view application details / resume in Bonus Phase #}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No applications yet.</p>
-        {% endif %}
-    </div>
+    <!-- Applications Section -->
+    <h3>Applications</h3>
+    {% if applications %}
+        <ul class="list-group mb-4">
+            {% for app in applications %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <!-- Application Info -->
+                        <div>
+                            {{ app.seeker.username }} applied to 
+                            "<a href="{% url 'job_detail' app.job.id %}">{{ app.job.title }}</a>"
+                            - Status:
+                            {% if app.status == "Accepted" %}
+                                <span class="badge bg-success">Accepted</span>
+                            {% elif app.status == "Rejected" %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% elif app.status == "Published" %}
+                                <span class="badge bg-primary">Published</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ app.status }}</span>
+                            {% endif %}
+                        </div>
 
-    <div class="container mt-3">
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Logout</button>
-        </form>
-    </div>
+                        <!-- Action Buttons -->
+                        <div>
+                            <!-- Show Accept/Reject buttons only if not already decided -->
+                            {% if app.status == "Published" %}
+                                <form action="{% url 'accept_application' app.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-success ml-2" type="submit">Accept</button>
+                                </form>
+                                <form action="{% url 'reject_application' app.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-danger ml-2" type="submit">Reject</button>
+                                </form>
+                            {% endif %}
+
+                            <!-- View Resume Button -->
+                            {% if app.resume %}
+                                <a href="{{ app.resume.url }}" target="_blank" class="btn btn-sm btn-info ml-2">View Resume</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No applications yet.</p>
+    {% endif %}
+</div>
+
+<!-- Logout Section -->
+<div class="container mt-3">
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
+</div>
 {% endblock %}

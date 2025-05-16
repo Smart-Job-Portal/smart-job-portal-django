@@ -10,14 +10,37 @@
     <p>
         <a href="{% url 'dashboard' %}" class="btn btn-secondary mb-3">Back to Employer Dashboard</a>
     </p>
-{% endif %}
+    {% endif %}
 
+    <!-- Search and filter form -->
+    <form method="get" class="mb-3">
+        <div class="row">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" 
+                       placeholder="Search by title or description" 
+                       value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="location" class="form-control" 
+                       placeholder="Filter by location" 
+                       value="{{ location_filter }}">
+            </div>
+             <div class="col-md-3">
+                <input type="text" name="salary" class="form-control" 
+                       placeholder="Filter by salary" 
+                       value="{{ salary_filter }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
 
-{% if empty_jobs %}
+    {% if empty_jobs %}
     <div class="alert alert-info">
         No jobs available at the moment.
     </div>
-{% else %}
+    {% else %}
 
     {% for job in jobs %}
         <div class="card mb-3">
@@ -31,15 +54,16 @@
 
     {% endif %}
 
+    <!-- Pagination controls -->
     {% if is_paginated %}
     <nav aria-label="Page navigation">
         <ul class="pagination">
             {% if page_obj.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page=1" aria-label="First">&laquo; First</a>
+                <a class="page-link" href="?page=1&search={{ search_query }}&location={{ location_filter }}" aria-label="First">&laquo; First</a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">&laquo;</a>
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&location={{ location_filter }}" aria-label="Previous">&laquo;</a>
             </li>
             {% endif %}
 
@@ -51,17 +75,18 @@
 
             {% if page_obj.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">&raquo;</a>
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&location={{ location_filter }}" aria-label="Next">&raquo;</a>
             </li>
             <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">Last &raquo;</a>
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&search={{ search_query }}&location={{ location_filter }}" aria-label="Last">Last &raquo;</a>
             </li>
             {% endif %}
         </ul>
     </nav>
     {% endif %}
+    
     {% if user.is_authenticated and user.is_seeker %}
-    <a href="{% url 'dashboard' %}" class="btn btn-success">back to dashboard</a>
-{% endif %}
+    <a href="{% url 'dashboard' %}" class="btn btn-success">Back to Dashboard</a>
+    {% endif %}
 </div>
 {% endblock %}

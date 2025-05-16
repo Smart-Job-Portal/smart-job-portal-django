@@ -29,23 +29,52 @@ from django.http import HttpResponseForbidden
 from .models import Job, Application
 
 
+
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from jobs.models import Application
+
+from django.db.models import Q
+
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 
 class JobListView(ListView):
     model = Job
     template_name = 'jobs/job_list.html'
     context_object_name = 'jobs'
-    ordering = ['posted_on']
+    ordering = ['-posted_on']
     
 
     def get_queryset(self):
-        queryset = Job.objects.all().order_by('posted_on')
+        queryset = Job.active_jobs.active().order_by('-posted_on')
+
+        search_query = self.request.GET.get('search', None)  # The 'search' query parameter
+        location_filter = self.request.GET.get('location', None)  # The 'location' query parameter
+        salary_filter = self.request.GET.get('salary', None)
+
+        # If a search term is provided, filter by title/description
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) | Q(description__icontains=search_query)
+            )
+        
+        # If a location is provided, filter jobs by location
+        if location_filter:
+            queryset = queryset.filter(location__icontains=location_filter)
+
+        if salary_filter:
+            queryset = queryset.filter(salary__icontains=salary_filter)
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # If no jobs exist, set an `empty_jobs` flag
         context['empty_jobs'] = not self.get_queryset().exists()
+        context['search_query'] = self.request.GET.get('search', '')  # Pre-fill search input
+        context['location_filter'] = self.request.GET.get('location', '')  # Pre-fill location input
+        context['salary_filter'] = self.request.GET.get('salary', '') 
         return context
 
     def get(self, request, *args, **kwargs):
@@ -140,6 +169,7 @@ def apply_job(request, job_id):
             application = form.save(commit=False)
             application.job = job
             application.seeker = request.user
+            application.status = 'Pending'
             application.save()
             return redirect('job_list')
         else:
@@ -163,3 +193,29 @@ def job_applications(request, job_id):
         'job': job,
         'applications': applications
     })
+
+
+@login_required
+def accept_application(request, application_id):
+    application = get_object_or_404(Application, pk=application_id)
+    # Security check: only employer who owns the job can accept
+    if not hasattr(request.user, 'is_employer') or not request.user.is_employer:
+        return HttpResponseForbidden("You must be an employer.")
+    if application.job.employer != request.user:
+        return HttpResponseForbidden("You can only manage your own job applications.")
+    if request.method == "POST":
+        application.status = 'Accepted'
+        application.save()
+    return redirect('dashboard')  # or your dashboard url name
+
+@login_required
+def reject_application(request, application_id):
+    application = get_object_or_404(Application, pk=application_id)
+    if not hasattr(request.user, 'is_employer') or not request.user.is_employer:
+        return HttpResponseForbidden("You must be an employer.")
+    if application.job.employer != request.user:
+        return HttpResponseForbidden("You can only manage your own job applications.")
+    if request.method == "POST":
+        application.status = 'Rejected'
+        application.save()
+    return redirect('dashboard')

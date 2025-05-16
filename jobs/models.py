@@ -1,17 +1,12 @@
 from django.db import models
 from django.conf import settings
 
+
 class ActiveJobManager(models.Manager):
-    
-    def get_queryset(self):
-        """Retrieve jobs posted by a specific employer"""
-        employer_username = self.request.GET.get('employer', None)  # Assume employer filter passed as a query parameter
-        if employer_username:
-            queryset = Job.objects.filter(employer__username=employer_username)
-        else:
-            queryset = Job.objects.all()
-        print("Jobs in queryset:", list(queryset))  # Debugging output
-        return queryset
+    def active(self):
+        """Returns only published (admin-approved) jobs."""
+        return super().get_queryset().filter(published=True)
+
 
 
 class Job(models.Model):
@@ -34,13 +29,23 @@ class Job(models.Model):
         return self.title
 
 class Application(models.Model):
+     
+    STATUS_CHOICES = [
+    ('Pending', 'Pending'),
+    ('Accepted', 'Accepted'),
+    ('Rejected', 'Rejected'),
+    ('Published', 'Published'),  # Optional
+]
+
+     
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
     seeker = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='applications'
     )
-    resume = models.FileField(upload_to='resumes/')
+    resume = models.FileField(upload_to='resumes/', blank=True, null=True)  # Resume upload
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')  # Status field
     applied_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
