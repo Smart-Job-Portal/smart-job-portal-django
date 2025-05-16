@@ -1,2 +1,49 @@
-<h2>Welcome, Employer!</h2>
-<a href="{% url 'logout' %}">Logout</a>
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container mt-5">
+        <h2>Employer Dashboard</h2>
+
+        <p>
+            <a href="{% url 'job_create' %}" class="btn btn-primary">Post New Job</a>
+        </p>
+
+        <h3>Your Jobs</h3>
+        {% if jobs %}
+            <ul class="list-group mb-4">
+                {% for job in jobs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ job.title }}</span>
+                        <div>
+                            <a href="{% url 'job_detail' job.id %}" class="btn btn-sm btn-info mr-2">View</a>
+                            <a href="{% url 'job_update' job.id %}" class="btn btn-sm btn-secondary mr-2">Edit</a>
+                            <a href="{% url 'job_delete' job.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No jobs posted yet.</p>
+        {% endif %}
+
+        <h3>Applications</h3>
+        {% if applications %}
+            <ul class="list-group mb-4">
+                {% for app in applications %}
+                    <li class="list-group-item">
+                         {{ app.seeker.username }} applied to "{{ app.job.title }}" - Status: {{ app.status }}
+                        {# TODO: Add link to view application details / resume in Bonus Phase #}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No applications yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="container mt-3">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+{% endblock %}

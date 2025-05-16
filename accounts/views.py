@@ -9,6 +9,9 @@ from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
 from .tokens import account_activation_token
 from django.http import HttpResponse
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth import get_user_model
+from django.contrib.auth import login
 
 def register_view(request):
     if request.method == 'POST':
@@ -35,9 +38,7 @@ def register_view(request):
         form = CustomUserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
-from django.utils.http import urlsafe_base64_decode
-from django.contrib.auth import get_user_model
-from django.contrib.auth import login
+
 
 def activate_account(request, uidb64, token):
     try:

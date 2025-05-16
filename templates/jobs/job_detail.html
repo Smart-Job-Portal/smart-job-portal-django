@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Job List{% endblock %}
+
+{% block content %}
+<h1>{{ job.title }}</h1>
+<p>{{ job.description }}</p>
+<p>Location: {{ job.location }}</p>
+<p>Salary: {{ job.salary }}</p>
+
+{% if user.is_authenticated and user.is_seeker %}
+    <a href="{% url 'apply_job' job.id %}" class="btn btn-primary">Apply for this Job</a>
+{% endif %}
+
+<br>
+<br>
+{% if user.is_authenticated and user.is_seeker %}
+    <a href="{% url 'job_list' %}" class="btn btn-success">back to jobs</a>
+{% endif %}
+
+<!-- Employer-specific link -->
+{% if user.is_authenticated and user.is_employer %}
+    <a href="{% url 'job_applications' job.id %}" class="btn btn-primary">View Applications</a>
+{% endif %}
+{% endblock %}

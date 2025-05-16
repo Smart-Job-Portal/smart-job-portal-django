@@ -1,29 +1,35 @@
 # SmartJobPortal Django Project Documentation
 
 ## Overview
+
 This documentation tracks the development of **SmartJobPortal**, a Django web application designed to facilitate job listings, user authentication, employer/seeker dashboards, and utility functions. The project leverages Django's modularity to create a scalable and maintainable job portal website. This document will be updated as new features, models, views, or configurations are implemented.
 
 ## Project Setup
 
 ### Prerequisites
+
 - Python 3.8 or higher
 - Django 5.1 or higher
 - pip (Python package manager)
 - Virtualenv (recommended for isolating dependencies)
 
 ### Installation
+
 1. **Create a virtual environment**:
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 2. **Install Django**:
+
    ```bash
    pip install django
    ```
 
 3. **Create the Django project**:
+
    ```bash
    django-admin startproject smartjobportal
    cd smartjobportal
@@ -31,6 +37,7 @@ This documentation tracks the development of **SmartJobPortal**, a Django web ap
 
 4. **Create custom apps**:
    The project is modularized into four apps to separate concerns:
+
    ```bash
    python manage.py startapp accounts    # Handles authentication and user model
    python manage.py startapp jobs        # Handles job listings and applications
@@ -40,6 +47,7 @@ This documentation tracks the development of **SmartJobPortal**, a Django web ap
 
 5. **Register apps**:
    Update `smartjobportal/settings.py` to include the custom apps:
+
    ```python
    INSTALLED_APPS = [
        'django.contrib.admin',
@@ -64,6 +72,7 @@ This documentation tracks the development of **SmartJobPortal**, a Django web ap
    Access the site at `http://127.0.0.1:8000/` to verify the Django welcome page loads.
 
 ### Project Structure
+
 ```
 smartjobportal/
 ├── manage.py
@@ -118,6 +127,16 @@ smartjobportal/
 │       ├── password_reset_done.html
 │       ├── please_check_email.html
 │       └── register.html
+    └── dashboard/
+│       ├── employer_dashboard.html
+│       ├── seeker_dashboard.html
+│       ├── unknown_role.html
+    └── jobs/
+│       ├── apply_job.html
+│       ├── job_detail.html
+│       ├── job_list.html
+    └── base.html
+│       
 └── docs/
     └── index.md  # This documentation
 ```
@@ -125,6 +144,7 @@ smartjobportal/
 ## Features
 
 ### Step 1: Project Initialization
+
 - **Goal**: Set up the Django project structure and create initial apps.
 - **Actions**:
   - Created the `smartjobportal` Django project.
@@ -141,10 +161,13 @@ smartjobportal/
   - Development server runs without errors, displaying the Django welcome page at `http://127.0.0.1:8000/`.
 
 ### Step 2: Custom User Model (accounts app)
+
 - **Goal**: Create a custom user model to support different roles: Job Seeker and Employer.
 - **Actions**:
+
   1. **Defined the CustomUser model**:
      Updated `accounts/models.py` to extend `AbstractUser` and include role-based flags:
+
      ```python
      from django.contrib.auth.models import AbstractUser
      from django.db import models
@@ -156,25 +179,31 @@ smartjobportal/
          def __str__(self):
              return self.username
      ```
+
      This model differentiates users by `is_employer` and `is_seeker` flags.
 
   2. **Configured Django to use the custom user model**:
      Added the following to `smartjobportal/settings.py`:
+
      ```python
      AUTH_USER_MODEL = 'accounts.CustomUser'
      ```
+
      This replaces Django’s default user model with `CustomUser`.
 
   3. **Created and applied migrations**:
      Ran the following commands to generate and apply migrations for the `accounts` app:
+
      ```bash
      python manage.py makemigrations accounts
      python manage.py migrate
      ```
-     *Note*: These migrations were applied early to avoid conflicts with the custom user model.
+
+     _Note_: These migrations were applied early to avoid conflicts with the custom user model.
 
   4. **Registered the model in the admin panel**:
      Updated `accounts/admin.py` to include `CustomUser` in the Django admin interface:
+
      ```python
      from django.contrib import admin
      from django.contrib.auth.admin import UserAdmin
@@ -182,6 +211,7 @@ smartjobportal/
 
      admin.site.register(CustomUser, UserAdmin)
      ```
+
      This allows management of `CustomUser` instances via the admin panel.
 
 - **Outcome**:
@@ -191,10 +221,13 @@ smartjobportal/
   - `CustomUser` registered in the admin panel for easy management.
 
 ### Step 3: Authentication System
+
 - **Goal**: Enable users to register, log in, and log out, with the ability to choose their role (Job Seeker or Employer) during registration.
 - **Actions**:
+
   1. **Created a custom registration form**:
      Added `accounts/forms.py` to define a form for user registration, extending Django’s `UserCreationForm`:
+
      ```python
      from django import forms
      from django.contrib.auth.forms import UserCreationForm
@@ -211,6 +244,7 @@ smartjobportal/
 
   2. **Implemented registration view**:
      Updated `accounts/views.py` to handle user registration and automatic login:
+
      ```python
      from django.shortcuts import render, redirect
      from django.contrib.auth import authenticate, login
@@ -230,7 +264,9 @@ smartjobportal/
      ```
 
   3. **Configured URLs**:
+
      - Created `accounts/urls.py`:
+
        ```python
        from django.urls import path
        from django.contrib.auth import views as auth_views
@@ -242,7 +278,9 @@ smartjobportal/
            path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
        ]
        ```
+
      - Updated `smartjobportal/urls.py`:
+
        ```python
        from django.contrib import admin
        from django.urls import path, include
@@ -254,13 +292,13 @@ smartjobportal/
        ```
 
   4. **Created templates**:
+
      - `templates/accounts/register.html`:
        ```html
        <h2>Register</h2>
        <form method="post">
-           {% csrf_token %}
-           {{ form.as_p }}
-           <button type="submit">Register</button>
+         {% csrf_token %} {{ form.as_p }}
+         <button type="submit">Register</button>
        </form>
        <a href="{% url 'login' %}">Already have an account?</a>
        ```
@@ -268,9 +306,8 @@ smartjobportal/
        ```html
        <h2>Login</h2>
        <form method="post">
-           {% csrf_token %}
-           {{ form.as_p }}
-           <button type="submit">Login</button>
+         {% csrf_token %} {{ form.as_p }}
+         <button type="submit">Login</button>
        </form>
        <a href="{% url 'register' %}">Don’t have an account?</a>
        ```
@@ -290,11 +327,15 @@ smartjobportal/
   - Login redirects to `dashboard`, logout to `login`.
 
 ### Step 4: Email Verification and Password Reset
+
 - **Goal**: Implement email verification for new registrations and a password reset system.
 - **Actions**:
+
   #### Part 1: Email Verification on Registration
+
   1. **Configured email settings**:
      Updated `smartjobportal/settings.py` to enable email sending via Gmail SMTP:
+
      ```python
      EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
      EMAIL_HOST = 'smtp.gmail.com'
@@ -303,10 +344,12 @@ smartjobportal/
      EMAIL_HOST_USER = 'your-email@gmail.com'
      EMAIL_HOST_PASSWORD = 'your-app-password'  # Use Gmail App Password
      ```
-     *Note*: Requires enabling "App Passwords" in Gmail at https://myaccount.google.com/apppasswords.
+
+     _Note_: Requires enabling "App Passwords" in Gmail at https://myaccount.google.com/apppasswords.
 
   2. **Created email verification token generator**:
      Added `accounts/tokens.py` to define a token generator for email verification:
+
      ```python
      from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
@@ -318,6 +361,7 @@ smartjobportal/
 
   3. **Updated registration view for email verification**:
      Modified `accounts/views.py` to send a verification email after registration:
+
      ```python
      from django.contrib.sites.shortcuts import get_current_site
      from django.template.loader import render_to_string
@@ -356,6 +400,7 @@ smartjobportal/
 
   4. **Added activation view**:
      Added to `accounts/views.py` to handle account activation via email link:
+
      ```python
      from django.utils.http import urlsafe_base64_decode
      from django.contrib.auth import get_user_model
@@ -379,6 +424,7 @@ smartjobportal/
 
   5. **Updated URLs for activation**:
      Modified `accounts/urls.py` to include the activation route:
+
      ```python
      from django.urls import path
      from django.contrib.auth import views as auth_views
@@ -394,13 +440,11 @@ smartjobportal/
 
   6. **Created activation email template**:
      Added `templates/accounts/activation_email.html`:
+
      ```html
-     Hi {{ user.username }},
-     Click the link below to activate your account:
-
-     http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
-
-     If you didn’t request this, please ignore this email.
+     Hi {{ user.username }}, Click the link below to activate your account:
+     http://{{ domain }}{% url 'activate' uidb64=uid token=token %} If you
+     didn’t request this, please ignore this email.
      ```
 
   7. **Created confirmation page**:
@@ -411,8 +455,10 @@ smartjobportal/
      ```
 
   #### Part 2: Password Reset
+
   8. **Added password reset URLs**:
      Updated `accounts/urls.py` to include Django’s built-in password reset views:
+
      ```python
      from django.urls import path
      from django.contrib.auth import views as auth_views
@@ -435,9 +481,8 @@ smartjobportal/
        ```html
        <h2>Reset your password</h2>
        <form method="post">
-           {% csrf_token %}
-           {{ form.as_p }}
-           <button type="submit">Send reset email</button>
+         {% csrf_token %} {{ form.as_p }}
+         <button type="submit">Send reset email</button>
        </form>
        ```
      - `templates/accounts/password_reset_done.html`:
@@ -448,14 +493,15 @@ smartjobportal/
        ```html
        <h2>Enter new password</h2>
        <form method="post">
-           {% csrf_token %}
-           {{ form.as_p }}
-           <button type="submit">Reset password</button>
+         {% csrf_token %} {{ form.as_p }}
+         <button type="submit">Reset password</button>
        </form>
        ```
      - `templates/accounts/password_reset_complete.html`:
        ```html
-       <p>Your password has been reset. <a href="{% url 'login' %}">Log in</a></p>
+       <p>
+         Your password has been reset. <a href="{% url 'login' %}">Log in</a>
+       </p>
        ```
 
 - **Outcome**:
@@ -472,12 +518,13 @@ smartjobportal/
   - All templates and URLs are properly configured for a secure and user-friendly experience.
 
 ## Configuration
+
 - **Database**: Default SQLite (configurable in `settings.py`).
 - **Static Files**: Configured for development (update for production as needed).
 - **Templates**: Custom templates directory configured at `templates/`.
 - **Authentication**:
   - Custom user model (`accounts.CustomUser`) supports role-based users.
-  jargons
+    jargons
   - Authentication system supports registration, login, logout, email verification, and password reset.
   - Redirects configured for login (`dashboard`), logout (`login`), and activation (`dashboard`).
 - **Email**:
@@ -485,14 +532,16 @@ smartjobportal/
   - Requires a Gmail App Password for secure access.
 
 ## Usage
+
 - **Register**: Navigate to `/accounts/register/` to create an account, selecting Job Seeker or Employer. Check email for an activation link.
 - **Activate Account**: Click the link in the verification email to activate the account and log in.
 - **Login**: Access `/accounts/login/` to sign in.
 - **Logout**: Visit `/accounts/logout/` to sign out.
 - **Password Reset**: Go to `/accounts/password_reset/` to request a password reset email.
-- *Note*: The `dashboard` redirect URL will be functional once implemented.
+- _Note_: The `dashboard` redirect URL will be functional once implemented.
 
 ## Development Notes
+
 - **Version Control**: Use Git for tracking changes.
 - **Testing**: Write unit tests in `tests.py` for authentication, email verification, and password reset (to be added).
 - **Deployment**:
@@ -507,4 +556,5 @@ smartjobportal/
   - Ensure the `django.contrib.sites` app is added to `INSTALLED_APPS` and `SITE_ID` is set in `settings.py` for `get_current_site` to work.
 
 ## Next Steps
-*Please provide details about the next features or components you’ve built (e.g., dashboard implementation, job models, or additional functionality), and this documentation will be updated accordingly.*
+
+_Please provide details about the next features or components you’ve built (e.g., dashboard implementation, job models, or additional functionality), and this documentation will be updated accordingly._

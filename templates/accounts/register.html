@@ -1,7 +1,40 @@
-<h2>Register</h2>
-<form method="post">
-    {% csrf_token %} <!-- ✅ This line is required -->
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-</form>
-<a href="{% url 'login' %}">Already have an account?</a>
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Register</h2>
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        {% for field in form %}
+            <div class="form-group">
+                {% if field.name == "is_employer" or field.name == "is_seeker" %}
+
+                    <!-- Styled form-check for checkboxes -->
+                    <div class="form-check">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                    </div>
+                {% else %}
+                    <!-- Regular form fields -->
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                {% endif %}
+                
+                {% if field.errors %}
+                    <div class="alert alert-danger mt-2">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn btn-primary mt-3">Register</button>
+    </form>
+    <a href="{% url 'login' %}" class="btn btn-link mt-2">Already have an account?</a>
+</div>
+{% endblock %}

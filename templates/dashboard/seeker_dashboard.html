@@ -1,2 +1,31 @@
-<h2>Welcome, Job Seeker!</h2>
-<a href="{% url 'logout' %}">Logout</a>
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container mt-5">
+        <h2>Seeker Dashboard</h2>
+
+        <p>
+             <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Available Jobs</a>
+        </p>
+
+        <h3>Your Applications</h3>
+        {% if applications %}
+            <ul class="list-group mb-4">
+                {% for app in applications %}
+                    <li class="list-group-item">
+                        Applied to "<a href="{% url 'job_detail' app.job.id %}">{{ app.job.title }}</a>" - Status: {{ app.status }}
+                         {# TODO: Link to view application details / resume in Bonus Phase if applicable for seeker #}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No applications yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="container mt-3">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
+{% endblock %}

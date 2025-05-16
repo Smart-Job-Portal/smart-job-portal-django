@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Apply for {{ job.title }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}  <!-- Display general form errors -->
+        
+        <!-- Optional: Show errors for individual fields -->
+        <div class="form-group">
+            {{ form.resume.label_tag }}
+            {{ form.resume }}
+            {% if form.resume.errors %}
+                <small class="text-danger">{{ form.resume.errors|join:", " }}</small>
+            {% endif %}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Submit Application</button>
+    </form>
+</div>
+{% endblock %}
