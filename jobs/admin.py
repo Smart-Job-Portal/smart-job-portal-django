@@ -34,26 +34,4 @@ approve_jobs.short_description = "Mark selected jobs as published"
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('job', 'seeker', 'applied_on', 'status')  # Show status column
     list_filter = ('status', 'applied_on')
-    actions = ['publish_applications']
 
-    def publish_applications(self, request, queryset):
-        """Admin action to mark selected applications as Published."""
-        for application in queryset:
-            if application.status == 'Pending':  # Publish only Pending applications
-                application.status = 'Published'
-                application.save()
-
-                # Notify employer about published applications
-                employer_email = application.job.employer.email
-                send_mail(
-                    subject="New Application Published",
-                    message=(
-                        f"The application from {application.seeker.username} "
-                        f"for your job '{application.job.title}' has been published."
-                    ),
-                    from_email="noreply@yourdomain.com",
-                    recipient_list=[employer_email],
-                )
-
-        self.message_user(request, f"{queryset.count()} application(s) published.")
-    publish_applications.short_description = "Mark selected applications as Published"

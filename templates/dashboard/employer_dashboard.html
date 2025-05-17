@@ -55,7 +55,7 @@
                         <!-- Action Buttons -->
                         <div>
                             <!-- Show Accept/Reject buttons only if not already decided -->
-                            {% if app.status == "Published" %}
+                            {% if app.status == "Pending" %}
                                 <form action="{% url 'accept_application' app.id %}" method="post" class="d-inline">
                                     {% csrf_token %}
                                     <button class="btn btn-sm btn-success ml-2" type="submit">Accept</button>

@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 
 
+
+
 class ActiveJobManager(models.Manager):
     def active(self):
         """Returns only published (admin-approved) jobs."""
@@ -34,7 +36,6 @@ class Application(models.Model):
     ('Pending', 'Pending'),
     ('Accepted', 'Accepted'),
     ('Rejected', 'Rejected'),
-    ('Published', 'Published'),  # Optional
 ]
 
      
