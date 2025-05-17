@@ -13,23 +13,23 @@ class ApplicationForm(forms.ModelForm):
         model = Application
         fields = ['resume']
 
-    # THIS METHOD MUST BE INSIDE THE CLASS
+    
     def clean_resume(self):
         resume = self.cleaned_data.get('resume')
         if resume:
             # Validate file size (Max 5MB)
-            if resume.size > 5 * 1024 * 1024:  # 5MB limit
-                # Use ValidationError instead of forms.ValidationError for clarity
+            if resume.size > 5 * 1024 * 1024:  
+                
                 raise ValidationError("The file size exceeds 5MB. Please upload a smaller file.")
 
             # Validate file format
             allowed_extensions = ['.pdf', '.doc', '.docx']
             filename = resume.name.lower()
-            # Check if any allowed extension is at the end of the filename
+           
             if not any(filename.endswith(ext) for ext in allowed_extensions):
                 raise ValidationError(
                     f"Invalid file format. Only files with extensions {', '.join(allowed_extensions)} are allowed."
                 )
-        # Make sure to return the cleaned data
+        
         return resume
 

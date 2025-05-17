@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth import  login
 from .forms import CustomUserCreationForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -11,8 +10,6 @@ from .tokens import account_activation_token
 from django.http import HttpResponse
 from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import get_user_model
-from django.contrib.auth import login
-from django.core.mail import send_mail
 from core.utils import send_welcome_email
 
 def register_view(request):
@@ -20,7 +17,7 @@ def register_view(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False  # Disable account until confirmed
+            user.is_active = False 
             user.save()
 
             # Email confirmation
@@ -37,8 +34,6 @@ def register_view(request):
             email.send()
 
             # Send welcome email
-            
-            
             return render(request, 'accounts/please_check_email.html')
     else:
         form = CustomUserCreationForm()
