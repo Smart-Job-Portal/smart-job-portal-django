@@ -3,8 +3,6 @@ from django.contrib import admin
 from core.utils import send_job_approval_email
 from .models import Job, Application
 
-
-
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     list_display = ('title', 'employer', 'location', 'posted_on', 'published')
@@ -12,9 +10,6 @@ class JobAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description')  
 
     actions = ['approve_jobs']
-
- 
-
 
 def approve_jobs(self, request, queryset):
         
@@ -33,4 +28,3 @@ approve_jobs.short_description = "Mark selected jobs as published"
 class ApplicationAdmin(admin.ModelAdmin):
     list_display = ('job', 'seeker', 'applied_on', 'status')  
     list_filter = ('status', 'applied_on')
-

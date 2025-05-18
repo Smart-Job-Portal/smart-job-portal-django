@@ -27,13 +27,11 @@ class JobListView(ListView):
         location_filter = self.request.GET.get('location', None)  
         salary_filter = self.request.GET.get('salary', None)
 
-        # If a search term is provided, filter by title/description
         if search_query:
             queryset = queryset.filter(
                 Q(title__icontains=search_query) | Q(description__icontains=search_query)
             )
         
-        # If a location is provided, filter jobs by location
         if location_filter:
             queryset = queryset.filter(location__icontains=location_filter)
 

@@ -6,14 +6,10 @@ from core.utils import send_job_approval_email
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
-
-
 class ActiveJobManager(models.Manager):
     def active(self):
         
         return super().get_queryset().filter(published=True)
-
-
 
 class Job(models.Model):
     employer = models.ForeignKey(
@@ -64,8 +60,6 @@ def notify_employer_on_application(sender, instance, created, **kwargs):
     
     if created and instance.status == "Pending":
         send_application_notification_email(instance)
-
-
 
 
 @receiver(pre_save, sender=Job)

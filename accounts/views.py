@@ -20,9 +20,8 @@ def register_view(request):
             user.is_active = False 
             user.save()
 
-            # Email confirmation
             current_site = get_current_site(request)
-            mail_subject = 'Activate your Smart Job Portal account'
+            mail_subject = 'PLEASE Activate your Job Portal account'
             message = render_to_string('accounts/activation_email.html', {
                 'user': user,
                 'domain': current_site.domain,
@@ -33,7 +32,6 @@ def register_view(request):
             email = EmailMessage(mail_subject, message, to=[to_email])
             email.send()
 
-            # Send welcome email
             return render(request, 'accounts/please_check_email.html')
     else:
         form = CustomUserCreationForm()
