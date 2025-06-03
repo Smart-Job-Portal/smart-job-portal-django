@@ -1,43 +1,40 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
-    <h2>Seeker Dashboard</h2>
 
-    <!-- Browse Jobs Button -->
-    <p>
-        <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Available Jobs</a>
-    </p>
-
-    <!-- Applications Section -->
-    <h3>Your Applications</h3>
+<div class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="mb-3 mb-md-0">Seeker Dashboard</h2>
+        <a href="{% url 'job_list' %}" class="btn btn-primary">
+            Browse Available Jobs
+        </a>
+    </div>
+    
+    <h4 class="mb-3">Your Applications</h4>
     {% if applications %}
         <ul class="list-group mb-4">
             {% for app in applications %}
                 <li class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <div>
-                            <!-- Job Title -->
-                            Applied to "<a href="{% url 'job_detail' app.job.id %}">{{ app.job.title }}</a>"
-
-                               <!-- Status -->
+                            Applied to 
+                            <a href="{% url 'job_detail' app.job.id %}" class="fw-bold">{{ app.job.title }}</a>
                             {% if app.status == 'Accepted' %}
-                                <span class="badge bg-success">Accepted</span>
+                                <span class="badge bg-success ms-2">Accepted</span>
                             {% elif app.status == 'Rejected' %}
-                                <span class="badge bg-danger">Rejected</span>
+                                <span class="badge bg-danger ms-2">Rejected</span>
                             {% elif app.status == 'Published' %}
-                                <span class="badge bg-primary">Published</span>
+                                <span class="badge bg-primary ms-2">Published</span>
                             {% else %}
-                                <span class="badge bg-warning text-dark">Pending</span>
+                                <span class="badge bg-warning text-dark ms-2">Pending</span>
                             {% endif %}
                         </div>
                         <div>
-                         
-
-                            <!-- Resume Download -->
                             {% if app.resume %}
-                                <a href="{{ app.resume.url }}" target="_blank" class="btn btn-info btn-sm ml-2">View Resume</a>
+                                <a href="{{ app.resume.url }}" target="_blank" class="btn btn-info btn-sm">
+                                    View Resume
+                                </a>
                             {% else %}
-                                <em class="ml-2">No resume uploaded</em>
+                                <em class="text-muted">No resume uploaded</em>
                             {% endif %}
                         </div>
                     </div>
@@ -45,15 +42,15 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No applications yet.</p>
+        <div class="alert alert-info">No applications yet.</div>
     {% endif %}
+
+    <div class="d-flex justify-content-end mt-4">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+    </div>
 </div>
 
-<!-- Logout Section -->
-<div class="container mt-3">
-    <form method="post" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Logout</button>
-    </form>
-</div>
 {% endblock %}

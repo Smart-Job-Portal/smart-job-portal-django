@@ -25,7 +25,6 @@ def register_view(request):
             domain = get_current_site(request).domain
             send_activation_email_task.delay(user.id, {'domain': domain})
 
-            # Send welcome email
             return render(request, 'accounts/please_check_email.html')
     else:
         form = CustomUserCreationForm()

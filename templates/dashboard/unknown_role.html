@@ -1,7 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
-    <div class="container mt-5">
-        <h2>Unknown Role</h2>
-        <p>Your account does not have a recognized role.</p>
+<div class="container py-5 d-flex justify-content-center align-items-center" style="min-height:70vh;">
+    <div class="card shadow-sm border-0" style="max-width: 420px;">
+        <div class="card-body text-center">
+            <div class="mb-3">
+                <span class="fs-1 text-info">❓</span>
+            </div>
+            <h3 class="card-title mb-3">Unknown Role</h3>
+            <div class="alert alert-info" role="alert">
+                Your account does not have a recognized role.<br>
+                Please contact support if this is an error.
+            </div>
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger mt-3">
+                Logout
+            </a>
+        </div>
     </div>
+</div>
 {% endblock %}

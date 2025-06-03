@@ -3,28 +3,33 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field}}
+<div class="d-flex justify-content-center align-items-center min-vh-100 bg-light">
+    <div class="card shadow p-4" style="width: 100%; max-width: 400px; border-radius: 1rem;">
+        <div class="text-center mb-4">
+            <h3 class="mb-1">Welcome Back 👋</h3>
+            <p class="text-muted">Login to your account</p>
+        </div>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group mb-3">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
                 {% if field.errors %}
-                    <div class="alert alert-danger">
-                        {{ field.errors }}
-                    </div>
+                <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
                 {% endif %}
             </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary">Login</button>
-       
-        <a href="/admin/" class="btn btn-danger">admin panel</a>
-    
-    </form>
-    <a href="{% url 'register' %}" class="btn btn-link">Don’t have an account?</a>
-    <br>
-    <a href="{% url 'password_reset' %}" class="btn btn-link">Reset Password</a>
+            {% endfor %}
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-dark">Login</button>
+                <a href="/admin/" class="btn btn-outline-danger">Admin Panel</a>
+            </div>
+        </form>
+        <div class="mt-4 text-center">
+            <a href="{% url 'register' %}" class="text-decoration-none">Don't have an account?
+                <strong>Register</strong></a><br>
+            <a href="{% url 'password_reset' %}" class="text-decoration-none mt-2 d-block">Forgot Password?</a>
+        </div>
+    </div>
 </div>
 {% endblock %}
