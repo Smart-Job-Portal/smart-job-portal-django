@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% load cache %}
+
+
 {% block title %}Job List{% endblock %}
 
 {% block content %}
@@ -42,15 +45,18 @@
     </div>
     {% else %}
 
-    {% for job in jobs %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><a href="{% url 'job_detail' job.id %}">{{ job.title }}</a></h5>
-                <p class="card-text">Location: {{ job.location }}</p>
-                <p class="card-text">Posted by: {{ job.employer.username }}</p>
+    {% cache 60 jobs_block search_query location_filter salary_filter page_obj.number %}
+        {% for job in jobs %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title"><a href="{% url 'job_detail' job.id %}">{{ job.title }}</a></h5>
+                    <p class="card-text">Location: {{ job.location }}</p>
+                    <p class="card-text">Posted by: {{ job.employer.username }}</p>
+                </div>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    {% endcache %}
+
 
     {% endif %}
 

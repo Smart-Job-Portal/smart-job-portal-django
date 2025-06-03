@@ -13,6 +13,10 @@ from .forms import ApplicationForm
 from django.db.models import Q
 from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnInteger
 
+from django.core.cache import cache
+import hashlib
+
+
 class JobListView(ListView):
     model = Job
     template_name = 'jobs/job_list.html'
@@ -52,6 +56,14 @@ class JobListView(ListView):
         return context
 
     def get(self, request, *args, **kwargs):
+
+        # ---[ Caching setup ]---
+        cache_key_raw = f"joblist:{request.get_full_path()}"
+        cache_key = "joblist:" + hashlib.md5(cache_key_raw.encode()).hexdigest()
+        response = cache.get(cache_key)
+        if response:
+            print("Cache hit!")    # Remove in production!
+            return response
      
         self.object_list = self.get_queryset()
         paginator = Paginator(self.object_list, 2)
@@ -71,8 +83,11 @@ class JobListView(ListView):
         context['is_paginated'] = jobs.has_other_pages()
         context['page_obj'] = jobs
 
-        return render(request, self.template_name, context)
+        response = render(request, self.template_name, context)
 
+        # ---[ Store in cache: 60 seconds ]---
+        cache.set(cache_key, response, timeout=60)
+        return response
 
 class JobDetailView(DetailView):
     model = Job

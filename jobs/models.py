@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
-from core.utils import send_application_notification_email  # import your function
+from core.utils import send_application_notification_email 
 from core.utils import send_job_approval_email
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
@@ -64,6 +64,7 @@ def notify_employer_on_application(sender, instance, created, **kwargs):
     
     if created and instance.status == "Pending":
         send_application_notification_email(instance)
+        #send_application_notification_email_task.delay(application.id)
 
 
 
@@ -84,3 +85,4 @@ def job_published_email_signal(sender, instance, created, **kwargs):
     if not created and hasattr(instance, "_published_was"):
         if not instance._published_was and instance.published:
             send_job_approval_email(instance)
+            #send_job_approval_email_task.delay(job.id)

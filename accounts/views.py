@@ -12,6 +12,8 @@ from django.utils.http import urlsafe_base64_decode
 from django.contrib.auth import get_user_model
 from core.utils import send_welcome_email
 
+from core.tasks import send_activation_email_task, send_welcome_email_task
+
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -20,18 +22,8 @@ def register_view(request):
             user.is_active = False 
             user.save()
 
-            # Email confirmation
-            current_site = get_current_site(request)
-            mail_subject = 'Activate your Smart Job Portal account'
-            message = render_to_string('accounts/activation_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
-            to_email = form.cleaned_data.get('email')
-            email = EmailMessage(mail_subject, message, to=[to_email])
-            email.send()
+            domain = get_current_site(request).domain
+            send_activation_email_task.delay(user.id, {'domain': domain})
 
             # Send welcome email
             return render(request, 'accounts/please_check_email.html')
@@ -52,6 +44,8 @@ def activate_account(request, uidb64, token):
         user.save()
         login(request, user)
 
+
+        send_welcome_email_task.delay(user.id)
         send_welcome_email(user)
 
         return redirect('dashboard')

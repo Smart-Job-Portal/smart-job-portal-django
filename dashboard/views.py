@@ -8,7 +8,7 @@ def dashboard_view(request):
 
     if hasattr(user, 'is_employer') and user.is_employer:
         
-        jobs = Job.objects.filter(employer=user)
+        jobs = Job.active_jobs.active().filter(employer=user)
         applications = Application.objects.filter(job__employer=user).select_related('job', 'seeker')  
         context = {
             'jobs': jobs,
