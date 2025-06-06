@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),  
     path('jobs/', include('jobs.urls')),
+    
 ]
 
 if settings.DEBUG:  # Serve media only in development!
