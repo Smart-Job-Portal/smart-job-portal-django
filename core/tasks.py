@@ -1,4 +1,3 @@
-# core/tasks.py
 from celery import shared_task
 from django.contrib.auth import get_user_model
 from core.emails import (
@@ -12,6 +11,7 @@ from core.emails import (
 def send_activation_email_task(user_id, domain):
     User = get_user_model()
     user = User.objects.get(pk=user_id)
+    # الان domain باید استرینگ باشه، نه dict!
     send_activation_email(user, domain)
 
 @shared_task

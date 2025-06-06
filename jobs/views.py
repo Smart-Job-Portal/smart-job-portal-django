@@ -15,6 +15,8 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnIn
 
 from django.core.cache import cache
 import hashlib
+from django.contrib import messages
+
 
 
 class JobListView(ListView):
@@ -108,7 +110,8 @@ class JobCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('job_list')  
 
     def form_valid(self, form):
-        form.instance.employer = self.request.user  
+        form.instance.employer = self.request.user
+        messages.success(self.request, "Job posted successfully!")  
         return super().form_valid(form)
 
 
@@ -121,6 +124,10 @@ class JobUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         job = self.get_object()
         return self.request.user == job.employer
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Job updated successfully!")
+        return super().form_valid(form)
 
 
 
@@ -132,6 +139,10 @@ class JobDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         job = self.get_object()
         return self.request.user == job.employer
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Job deleted successfully!")
+        return super().delete(request, *args, **kwargs)
 
 
 @login_required
@@ -149,8 +160,10 @@ def apply_job(request, job_id):
             application.seeker = request.user
             application.status = 'Pending'
             application.save()
+            messages.success(request, "You applied for this job successfully!")  # Added message
             return redirect('job_list')
         else:
+            messages.error(request, "There was an error in your application form. Please correct the issues.")  # Added message
             
             return render(request, 'jobs/apply_job.html', {'job': job, 'form': form})
     else:
@@ -184,6 +197,7 @@ def accept_application(request, application_id):
     if request.method == "POST":
         application.status = 'Accepted'
         application.save()
+        messages.success(request, "You have accepted the applicant.")
     return redirect('dashboard')  
 
 @login_required
@@ -196,4 +210,5 @@ def reject_application(request, application_id):
     if request.method == "POST":
         application.status = 'Rejected'
         application.save()
+        messages.info(request, "You have rejected the applicant.")  # Added message
     return redirect('dashboard')

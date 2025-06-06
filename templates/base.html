@@ -6,31 +6,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Job Portal{% endblock %}</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <style>
+    .notif-dot {
+      width: 10px;
+      height: 10px;
+      background: red;
+      border-radius: 50%;
+      display: inline-block;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+    .notif-area {
+      position: absolute; top: 16px; right: 32px; z-index: 10;
+    }
+  </style>
 </head>
 
 <body>
-  {% if user.is_authenticated %}
-    <div style="position: absolute; top: 16px; right: 32px; z-index: 10;">
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" id="notifDropdown" data-toggle="dropdown"
-          aria-haspopup="true" aria-expanded="false">
-          🔔 Notifications ({{ user_notifications|length }})
-        </button>
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown" style="min-width: 350px;">
-          {% if user_notifications %}
-            {% for notif in user_notifications %}
-              <a class="dropdown-item" href="{{ notif.link|default:'#' }}">
-                {{ notif.message|truncatechars:50 }}<br>
-                <small class="text-muted">{{ notif.created_at|date:"M d, H:i" }}</small>
-              </a>
-            {% endfor %}
-          {% else %}
-            <span class="dropdown-item-text text-muted">No new notifications.</span>
-          {% endif %}
+  <!-- Django Messages Framework Integration Start -->
+  {% if messages %}
+    <div class="container mt-4">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-      </div>
+      {% endfor %}
     </div>
   {% endif %}
+  <!-- Django Messages Framework Integration End -->
+
+  {% if user.is_authenticated %}
+  <div class="notif-area">
+    <div class="dropdown">
+      <button class="btn btn-light dropdown-toggle position-relative" type="button" id="notifDropdown"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        🔔 Notifications ({{ user_notifications|length|default:"0" }})
+        {% if has_unread_notifications %}
+          <span class="notif-dot"></span>
+        {% endif %}
+      </button>
+      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notifDropdown" style="min-width: 350px;">
+        {% if user_notifications and user_notifications|length > 0 %}
+          {% for notif in user_notifications %}
+            <a class="dropdown-item {% if not notif.is_read %}font-weight-bold{% endif %}"
+               href="{{ notif.link|default:'#' }}">
+              {{ notif.message|truncatechars:50 }}
+              <br>
+              <small class="text-muted">
+                {{ notif.created_at|date:"M d, H:i" }}
+                {% if not notif.is_read %}
+                  <span class="badge badge-pill badge-danger ml-1">New</span>
+                {% endif %}
+              </small>
+            </a>
+          {% endfor %}
+        {% else %}
+          <span class="dropdown-item-text text-muted">No new notifications.</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+
+
+
   <div class="container">
     {% block content %}{% endblock %}
   </div>

@@ -1,30 +1,34 @@
-from django.core.mail import send_mail
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.contrib.sites.models import Site
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.conf import settings
 from accounts.tokens import account_activation_token
 from notifications.utils import notify_user
 
-
 def send_activation_email(user, domain):
-   
-    mail_subject = 'Activate your Smart Job Portal account'
-    message = render_to_string('accounts/activation_email.html', {
+    subject = 'Activate your Smart Job Portal account'
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = account_activation_token.make_token(user)
+    activate_url = f"http://{domain}/accounts/activate/{uid}/{token}/"
+
+    context = {
         'user': user,
-        'domain': domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': account_activation_token.make_token(user),
-    })
-    to_email = user.email
-    email = EmailMessage(mail_subject, message, to=[to_email])
+        'activate_url': activate_url,
+    }
+    # ساخت متن html و ساده برای همه میل‌کلاینت‌ها
+    html_message = render_to_string('accounts/activation_email.html', context)
+    plain_message = f"Hi {user.username},\n\nPlease activate your account by clicking the following link:\n{activate_url}\n\nThanks!"
+
+    email = EmailMultiAlternatives(
+        subject,
+        plain_message,  # Plain text version for clients that don't render HTML
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+    )
+    email.attach_alternative(html_message, "text/html")
     email.send()
 
-
-
-    
 def send_welcome_email(user):
     subject = 'Welcome to Smart Job Portal!'
     html_message = render_to_string('accounts/welcome_email.html', {'user': user})
@@ -34,10 +38,8 @@ def send_welcome_email(user):
         link="/dashboard/",
         email_subject=subject,
         email_body="Welcome to Smart Job Portal! Your account has been activated.",
-        html_message=html_message,  
+        html_message=html_message,
     )
-
-
 
 def send_job_approval_email(job):
     subject = "Your job listing has been approved"
@@ -54,10 +56,8 @@ def send_job_approval_email(job):
         link=f"/jobs/{job.id}/",
         email_subject=subject,
         email_body=message_plain,
-        html_message=message_html,   
+        html_message=message_html,
     )
-
-   
 
 def send_application_notification_email(application):
     subject = "Someone applied to your job!"
@@ -80,6 +80,5 @@ def send_application_notification_email(application):
         link=f"/jobs/{application.job.id}/applications/",
         email_subject=subject,
         email_body=message_plain,
-        html_message=message_html,  
+        html_message=message_html,
     )
-
