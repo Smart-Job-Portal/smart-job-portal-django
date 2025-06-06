@@ -25,7 +25,8 @@ def register_view(request):
             user.save()
 
             domain = get_current_site(request).domain
-            send_activation_email_task.delay(user.id, {'domain': domain})
+            send_activation_email_task.delay(user.id, domain)
+
 
             # ===== Inform user to check their email via Django messages =====
             messages.info(request, "Please check your email to activate your account before logging in.")
