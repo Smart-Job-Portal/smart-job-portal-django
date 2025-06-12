@@ -17,7 +17,7 @@ urlpatterns = [
 
     # === User Profile management routes ===
     path('profile/', profile_view, name='profile'),
-    path('profile/edit/', profile_edit_view, name='profile_edit'),
+    path('profile_edit/', profile_edit_view, name='profile_edit'),
 ]
 
 # Required for serving media files during development

@@ -1,19 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
-from .forms import CustomUserCreationForm
 from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.core.mail import EmailMessage
-from .tokens import account_activation_token
-from django.http import HttpResponse
-from django.contrib.auth import get_user_model
-from core.utils import send_welcome_email
-from core.tasks import send_activation_email_task, send_welcome_email_task
-
-from django.contrib.auth.views import PasswordResetView
+from django.utils.http import urlsafe_base64_decode
 from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+
+from .forms import CustomUserCreationForm, UserProfileForm
+from .models import UserProfile
+from .tokens import account_activation_token
+from core.tasks import send_activation_email_task, send_welcome_email_task
+from core.utils import send_welcome_email
 
 # ------------------ Registration View ------------------
 def register_view(request):
@@ -60,23 +57,13 @@ def activate_account(request, uidb64, token):
         messages.error(request, "Activation link is invalid or has expired. Please register again or contact support if you need help.")
         return redirect('login')
 
-# ============================================================
-#         ADD YOUR PROFILE VIEW FUNCTION HERE!
-# ============================================================
-
-from django.contrib.auth.decorators import login_required
-from .models import UserProfile
-
+# ------------------ Profile View ------------------
 @login_required
 def profile_view(request):
-    # Defensive: always ensure a profile exists
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
     return render(request, 'accounts/profile.html', {'profile': profile})
 
-from .forms import UserProfile
-
-from .forms import CustomUserCreationForm, UserProfileForm
-
+# ------------------ Profile Edit View ------------------
 @login_required
 def profile_edit_view(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
@@ -85,11 +72,10 @@ def profile_edit_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Your profile has been updated!")
-            return redirect('accounts:profile')
+            # ----------- NO NAMESPACE: only 'profile', not 'accounts:profile'
+            return redirect('profile')
         else:
             messages.error(request, "Please correct the errors below.")
     else:
         form = UserProfileForm(instance=profile)
     return render(request, 'accounts/profile_edit.html', {'form': form, 'profile': profile})
-
-
