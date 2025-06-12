@@ -1,7 +1,8 @@
+
 from django.conf import settings
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import register_view, activate_account, profile_view, profile_edit_view  # Updated here
+from .views import register_view, activate_account, profile_view, profile_edit_view  
 from django.conf.urls.static import static
 
 urlpatterns = [

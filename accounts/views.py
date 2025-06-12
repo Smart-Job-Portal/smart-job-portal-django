@@ -65,22 +65,21 @@ def activate_account(request, uidb64, token):
 # ============================================================
 
 from django.contrib.auth.decorators import login_required
+from .models import UserProfile
 
 @login_required
 def profile_view(request):
-    """
-    Display the current user's profile page.
-    """
-    profile = request.user.userprofile
+    # Defensive: always ensure a profile exists
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
     return render(request, 'accounts/profile.html', {'profile': profile})
 
+from .forms import UserProfile
 
-
-from .forms import UserProfileForm
+from .forms import CustomUserCreationForm, UserProfileForm
 
 @login_required
 def profile_edit_view(request):
-    profile = request.user.userprofile
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
@@ -92,4 +91,5 @@ def profile_edit_view(request):
     else:
         form = UserProfileForm(instance=profile)
     return render(request, 'accounts/profile_edit.html', {'form': form, 'profile': profile})
+
 

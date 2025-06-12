@@ -25,10 +25,11 @@ class CustomUserCreationForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            if field_name == 'role':
-                continue  # Already styled in widget init
-            elif field_name == 'profile_image':
+        # Consistent Bootstrap styling
+        for name, field in self.fields.items():
+            if name == 'role':
+                continue  # RadioSelect styled in field definition
+            elif name == 'profile_image':
                 field.widget.attrs.update({'class': 'form-control-file'})
             else:
                 field.widget.attrs.update({'class': 'form-control'})
@@ -40,23 +41,41 @@ class CustomUserCreationForm(UserCreationForm):
                 validate_email(email)
             except ValidationError:
                 raise forms.ValidationError("Enter a valid email address.")
+            # Uniqueness check
             if CustomUser.objects.filter(email=email).exists():
                 raise forms.ValidationError("A user with that email already exists.")
         return email
 
     def save(self, commit=True):
+        """
+        Saves the user and links profile_image to the user's profile if provided.
+        Defensive for edge-cases: supports both with/without profile signal.
+        """
         user = super().save(commit=False)
         role = self.cleaned_data.get('role')
         user.is_employer = (role == 'employer')
         user.is_seeker = (role == 'seeker')
         if commit:
             user.save()
-            # Update UserProfile with profile_image if provided
             profile_image = self.cleaned_data.get('profile_image')
+            # Try to get, else create the profile (defensive for signal race condition)
+            profile, created = UserProfile.objects.get_or_create(user=user)
             if profile_image:
-                # If signals already create UserProfile, just update
-                profile = getattr(user, 'userprofile', None)
-                if profile:
-                    profile.image = profile_image
-                    profile.save()
+                profile.image = profile_image
+                profile.save()
         return user
+from django import forms
+from .models import UserProfile
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['image', 'bio', 'resume']
+        widgets = {
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['image'].widget.attrs.update({'class': 'form-control-file'})
+        self.fields['resume'].widget.attrs.update({'class': 'form-control-file'})
