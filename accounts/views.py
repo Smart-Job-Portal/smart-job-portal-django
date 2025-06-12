@@ -53,11 +53,11 @@ def activate_account(request, uidb64, token):
         send_welcome_email_task.delay(user.id)
         send_welcome_email(user)
 
-        # ===== Inform user on success =====
+        #Inform user on success
         messages.success(request, "Your account has been activated! You are now logged in.")
         return redirect('dashboard')
     else:
-        # ===== Inform user on invalid/expired link =====
+        #  Inform user on invalid/expired link 
         messages.error(request, "Activation link is invalid or has expired. Please register again or contact support if you need help.")
         return redirect('login')
   
