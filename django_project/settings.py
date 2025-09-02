@@ -38,11 +38,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     'django.contrib.sites',
-    'accounts',
+    
     'jobs',
     'dashboard',
     'core',
     'notifications.apps.NotificationsConfig',
+    'accounts.apps.AccountsConfig',
 
 ]
 

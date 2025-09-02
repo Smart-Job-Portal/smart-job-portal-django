@@ -6,9 +6,10 @@ EXCLUDED_PATH_PREFIXES = (
 )
 
 class ActivityLoggerMiddleware:
+    #set up the middle wear
     def __init__(self, get_response):
         self.get_response = get_response
-
+    #every request pass through call
     def __call__(self, request):
         response = self.get_response(request)
         path = request.path

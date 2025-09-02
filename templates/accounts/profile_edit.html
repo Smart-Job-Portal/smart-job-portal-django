@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filter %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h5>Edit Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="form-group mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
+                            <a href="{% url 'profile' %}" class="btn btn-outline-secondary mt-2">Cancel</a>
+                        </div>
+                    </form>
+                    {% if profile.image %}
+                        <div class="mt-4 text-center">
+                            <strong>Current Picture:</strong><br>
+                            <img src="{{ profile.thumbnail.url|default:profile.image.url }}" class="img-thumbnail mt-2" style="max-width: 120px;">
+                        </div>
+                    {% endif %}
+                    {% if profile.resume %}
+                        <div class="mt-2 text-center">
+                            <strong>Current Resume:</strong><br>
+                            <a href="{{ profile.resume.url }}" download>{{ profile.resume.name|basename }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
