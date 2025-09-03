@@ -21,7 +21,8 @@ def register_view(request):
             user.is_active = False
             user.save()
 
-            domain = get_current_site(request).domain
+            #domain = get_current_site(request).domain
+            domain = request.get_host()
             send_activation_email_task.delay(user.id, domain)
 
             messages.info(request, "Please check your email to activate your account before logging in.")

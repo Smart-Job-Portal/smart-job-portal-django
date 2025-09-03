@@ -14,7 +14,9 @@ def send_activation_email(user, domain):
 
     context = {
         'user': user,
-        'activate_url': activate_url,
+         'domain': domain,
+    'uid': uid,
+    'token': token,
     }
     # ساخت متن html و ساده برای همه میل‌کلاینت‌ها
     html_message = render_to_string('accounts/activation_email.html', context)
