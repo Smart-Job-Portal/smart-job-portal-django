@@ -24,12 +24,22 @@
                 <button type="submit" class="btn btn-dark">Login</button>
                 <a href="/admin/" class="btn btn-outline-danger">Admin Panel</a>
             </div>
+           <div class="text-center mt-4">
+    <a href="{% url 'social_role' 'employer' %}" class="btn btn-outline-danger w-100 mb-2">
+        <i class="fab fa-google me-2"></i> Sign in as Employer with Google
+    </a>
+    <a href="{% url 'social_role' 'seeker' %}" class="btn btn-outline-danger w-100">
+        <i class="fab fa-google me-2"></i> Sign in as Seeker with Google
+    </a>
+</div>
+
         </form>
         <div class="mt-4 text-center">
             <a href="{% url 'register' %}" class="text-decoration-none">Don't have an account?
                 <strong>Register</strong></a><br>
             <a href="{% url 'password_reset' %}" class="text-decoration-none mt-2 d-block">Forgot Password?</a>
         </div>
+
     </div>
 </div>
 {% endblock %}

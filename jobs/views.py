@@ -16,7 +16,8 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnIn
 from django.core.cache import cache
 import hashlib
 from django.contrib import messages
-
+from django.core.cache import cache
+import hashlib
 
 
 class JobListView(ListView):
@@ -89,19 +90,36 @@ class JobListView(ListView):
         cache.set(cache_key, response, timeout=60)
         return response
 
+
+
 class JobDetailView(DetailView):
     model = Job
     template_name = 'jobs/job_detail.html'
-    context_object_name = 'job'  
+    context_object_name = 'job'
+
+    def get(self, request, *args, **kwargs):
+        raw_key = f"jobdetail:{request.get_full_path()}"
+        cache_key = "jobdetail:" + hashlib.md5(raw_key.encode()).hexdigest()
+
+        cached_response = cache.get(cache_key)
+        if cached_response:
+            print("Job detail cache hit!")
+            return cached_response
+
+        response = super().get(request, *args, **kwargs)
+        # Force rendering before caching (important!)
+        response.render()
+        cache.set(cache_key, response, timeout=300)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-      
-        if self.request.user.is_authenticated and self.request.user == self.object.employer:
-            context['is_employer'] = True
-        else:
-            context['is_employer'] = False
+        context["is_employer"] = (
+            self.request.user.is_authenticated
+            and self.request.user == self.object.employer
+        )
         return context
+
 
 class JobCreateView(LoginRequiredMixin, CreateView):
     model = Job

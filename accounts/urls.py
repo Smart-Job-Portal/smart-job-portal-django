@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import register_view, activate_account, profile_view, profile_edit_view  
+from .views import register_view, activate_account, profile_view, profile_edit_view, set_role_and_social_redirect  
 from django.conf.urls.static import static
 
 urlpatterns = [
@@ -18,6 +18,8 @@ urlpatterns = [
     # === User Profile management routes ===
     path('profile/', profile_view, name='profile'),
     path('profile_edit/', profile_edit_view, name='profile_edit'),
+
+    path('social-role/<str:role>/', set_role_and_social_redirect, name='social_role'),
 ]
 
 # Required for serving media files during development

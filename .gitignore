@@ -7,3 +7,8 @@ media/
 .vscode/
 
 SmartJobPortal Project Summary.markdown
+
+localhost+*.pem
+localhost+*-key.pem
+*.crt
+*.key

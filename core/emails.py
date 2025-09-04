@@ -5,31 +5,32 @@ from django.utils.encoding import force_bytes
 from django.conf import settings
 from accounts.tokens import account_activation_token
 from notifications.utils import notify_user
+from django.contrib.auth import get_user_model
 
-def send_activation_email(user, domain):
+def send_activation_email(user_id, activate_url):
+    
+    User = get_user_model()
+    user = User.objects.get(pk=user_id)
+
     subject = 'Activate your Smart Job Portal account'
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = account_activation_token.make_token(user)
-    activate_url = f"http://{domain}/accounts/activate/{uid}/{token}/"
-
     context = {
         'user': user,
-         'domain': domain,
-    'uid': uid,
-    'token': token,
+        'activate_url': activate_url,
     }
-    # ساخت متن html و ساده برای همه میل‌کلاینت‌ها
+
+  
     html_message = render_to_string('accounts/activation_email.html', context)
     plain_message = f"Hi {user.username},\n\nPlease activate your account by clicking the following link:\n{activate_url}\n\nThanks!"
 
     email = EmailMultiAlternatives(
         subject,
-        plain_message,  # Plain text version for clients that don't render HTML
+        plain_message,
         settings.DEFAULT_FROM_EMAIL,
         [user.email],
     )
     email.attach_alternative(html_message, "text/html")
     email.send()
+
 
 def send_welcome_email(user):
     subject = 'Welcome to Smart Job Portal!'

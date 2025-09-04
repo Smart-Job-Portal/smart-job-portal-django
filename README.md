@@ -49,8 +49,8 @@ smart_job_portal/
 
 ### API
 
-* Create APIs to support key functionalities in addition to your existing application. (You may reimplement the entire application using Django REST Framework (DRF) if you wish, but it's *not required*.)
-* Use JWT authentication
+* Create APIs to support key functionalities in addition to your existing application. (You may reimplement the entire application using Django REST Framework (DRF) if you wish, but it's *not required*.)✅
+* Use JWT authentication✅
 
 ### Authentication
 
@@ -59,8 +59,8 @@ smart_job_portal/
 
 ### Redis & Celery
 
-* Redis for caching job listings ✅ and throttling
-* Redis for caching Views, Template Fragments,and Low-level caching wherever is needed. 
+* Redis for caching job listings ✅ and throttling✅
+* Redis for caching Views, Template Fragments,and Low-level caching wherever is needed. ✅
 * Celery for background tasks (e.g., sending emails, generating thumbnails)✅
 
 ### Profile Management
@@ -82,7 +82,7 @@ successfully submitting a form.
 
 ### HTTPS and Security
 
-* Run server using HTTPS in development.
+* Run server using HTTPS in development.✅
 
 
 ### Bonus Features

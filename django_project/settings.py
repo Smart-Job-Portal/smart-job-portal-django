@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-883tpu9sr$)tgyi3@oh5vfcnqd1ljzriwn*t6#_n+8!ylf+%g-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'notifications.apps.NotificationsConfig',
     'accounts.apps.AccountsConfig',
 
+'rest_framework',
+    'social_django',
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -170,3 +173,83 @@ CACHES = {
         }
     }
 }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+     'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/minute',   # anonymous requests
+        'user': '100/minute',  # logged-in users
+    }
+}
+REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] += [
+    'rest_framework.throttling.ScopedRateThrottle',
+]
+REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'].update({
+    'apply-job': '5/hour',
+    'manage-application': '30/hour',  # employers updating statuses
+})
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    #'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    #'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Google backend
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="484034408551-puaqsq6pivenk9nh8essuqma1gpg4nud.apps.googleusercontent.com"
+#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET ="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"
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/dashboard/'
+SOCIAL_AUTH_LOGIN_ERROR_URL = '/login/'
+
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'accounts.pipelines.set_role_from_session',  # <-- Add this line
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'accounts.pipelines.check_user_role',  # Keep as fallback
+)
+SESSION_COOKIE_DOMAIN = None  # make cookie bound to exact host
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+
+SECURE_SSL_REDIRECT = False  # Default for non-DEBUG (override in production)
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+
+if DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+    CSRF_TRUSTED_ORIGINS += [
+        'https://localhost:8000',
+        'https://127.0.0.1:8000',
+    ]
+    SOCIAL_AUTH_GOOGLE_OAUTH2_REDIRECT_URI = 'https://127.0.0.1:8000/oauth/complete/google-oauth2/'
+

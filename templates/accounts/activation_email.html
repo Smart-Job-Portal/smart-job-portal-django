@@ -1,6 +1,7 @@
 Hi {{ user.username }},
+
 Click the link below to activate your account:
 
-http://{{ domain }}{% url 'activate' uidb64=uid token=token %}
+<a href="{{ activate_url }}">{{ activate_url }}</a>
 
 If you didn’t request this, please ignore this email.

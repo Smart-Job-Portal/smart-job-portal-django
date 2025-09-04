@@ -8,11 +8,8 @@ from core.emails import (
 )
 
 @shared_task
-def send_activation_email_task(user_id, domain):
-    User = get_user_model()
-    user = User.objects.get(pk=user_id)
-    # الان domain باید استرینگ باشه، نه dict!
-    send_activation_email(user, domain)
+def send_activation_email_task(user_id, activate_url):
+    send_activation_email(user_id, activate_url)
 
 @shared_task
 def send_welcome_email_task(user_id):

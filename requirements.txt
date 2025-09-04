@@ -6,3 +6,30 @@ django-redis>=5.0.0,<6.0.0
 celery>=5.3,<6.0
 redis>=4.5
 Pillow>=10.0
+
+djangorestframework==3.16.1
+djangorestframework-simplejwt==5.5.1
+pyjwt==2.10.1
+social-auth-app-django==5.5.1
+social-auth-core==4.7.0
+cryptography==45.0.7
+defusedxml==0.7.1
+oauthlib==3.3.1
+python3-openid==3.2.0
+requests-oauthlib==2.0.0
+requests==2.32.5
+
+django-extensions==4.1
+Werkzeug==3.0.3
+pyOpenSSL==24.2.1
+
+python-dotenv==1.0.1
+
+# celery -A django_project worker -P threads -c 4 -l info
+
+# https://github.com/FiloSottile/mkcert/releases
+# mkcert -install
+# mkcert localhost 127.0.0.1
+# python manage.py runserver_plus --cert localhost+1.pem --key localhost+1-key.pem
+
+# uncomment secret and key for google 
