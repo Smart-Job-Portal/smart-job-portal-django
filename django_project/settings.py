@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -212,9 +214,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
-#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="484034408551-puaqsq6pivenk9nh8essuqma1gpg4nud.apps.googleusercontent.com"
-#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET ="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"
-
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('GOOGLE_CLIENT_ID')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/dashboard/'
