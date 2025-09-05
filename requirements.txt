@@ -33,3 +33,11 @@ python-dotenv==1.0.1
 # python manage.py runserver_plus --cert localhost+1.pem --key localhost+1-key.pem
 
 # uncomment secret and key for google 
+
+# $env:GEMINI_API_KEY="AIzaSyBC6gW5Bicnp8hRnYPvjegYCDMbupyya0w"
+
+# $env:GEMINI_API_KEY = "AIzaSyDh-tWBhh97ElmlvC7hPt3fyElSjog_VsY"
+
+
+# gemini -p "Use the rubric in GEMINI.md. Read all relevant source files. Produce the report in the Output Format."
+# Use the rubric in GEMINI.md. Read all relevant source files. Produce the report in the Output Format.

@@ -1,0 +1,18 @@
+
+
+
+$env:GEMINI_API_KEY = "AIzaSyDh-tWBhh97ElmlvC7hPt3fyElSjog_VsY"
+
+
+gemini -p "Use the rubric in GEMINI.md. Read all relevant source files. Produce the report in the Output Format."
+
+
+
+
+
+
+
+
+gemini 
+
+Use the rubric in GEMINI.md. Read all relevant source files. Produce the report in the Output Format.

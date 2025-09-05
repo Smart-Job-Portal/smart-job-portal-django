@@ -29,7 +29,6 @@ class JobListView(ListView):
 
     def get_queryset(self):
         queryset = Job.active_jobs.active().order_by('-posted_on')
-
         search_query = self.request.GET.get('search', None)
         location_filter = self.request.GET.get('location', None)  
         salary_filter = self.request.GET.get('salary', None)
