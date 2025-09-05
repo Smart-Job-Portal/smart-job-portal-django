@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5 text-center">
+    <h2>Choose Your Role</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="role" value="employer"
+                class="btn btn-success btn-lg m-2">
+            I'm an Employer
+        </button>
+        <button type="submit" name="role" value="seeker"
+                class="btn btn-primary btn-lg m-2">
+            I'm a Job Seeker
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -4,4 +4,13 @@ db.sqlite3
 
 media/
 
-SmartJobPortal Project Summary.markdown
+.vscode/
+
+
+localhost+*.pem
+localhost+*-key.pem
+*.crt
+*.key
+
+
+.env

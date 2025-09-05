@@ -15,6 +15,9 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage, PageNotAnIn
 
 from django.core.cache import cache
 import hashlib
+from django.contrib import messages
+from django.core.cache import cache
+import hashlib
 
 
 class JobListView(ListView):
@@ -26,7 +29,6 @@ class JobListView(ListView):
 
     def get_queryset(self):
         queryset = Job.active_jobs.active().order_by('-posted_on')
-
         search_query = self.request.GET.get('search', None)
         location_filter = self.request.GET.get('location', None)  
         salary_filter = self.request.GET.get('salary', None)
@@ -87,19 +89,36 @@ class JobListView(ListView):
         cache.set(cache_key, response, timeout=60)
         return response
 
+
+
 class JobDetailView(DetailView):
     model = Job
     template_name = 'jobs/job_detail.html'
-    context_object_name = 'job'  
+    context_object_name = 'job'
+
+    def get(self, request, *args, **kwargs):
+        raw_key = f"jobdetail:{request.get_full_path()}"
+        cache_key = "jobdetail:" + hashlib.md5(raw_key.encode()).hexdigest()
+
+        cached_response = cache.get(cache_key)
+        if cached_response:
+            print("Job detail cache hit!")
+            return cached_response
+
+        response = super().get(request, *args, **kwargs)
+        # Force rendering before caching (important!)
+        response.render()
+        cache.set(cache_key, response, timeout=300)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-      
-        if self.request.user.is_authenticated and self.request.user == self.object.employer:
-            context['is_employer'] = True
-        else:
-            context['is_employer'] = False
+        context["is_employer"] = (
+            self.request.user.is_authenticated
+            and self.request.user == self.object.employer
+        )
         return context
+
 
 class JobCreateView(LoginRequiredMixin, CreateView):
     model = Job
@@ -108,7 +127,8 @@ class JobCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('job_list')  
 
     def form_valid(self, form):
-        form.instance.employer = self.request.user  
+        form.instance.employer = self.request.user
+        messages.success(self.request, "Job posted successfully!")  
         return super().form_valid(form)
 
 
@@ -121,6 +141,10 @@ class JobUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         job = self.get_object()
         return self.request.user == job.employer
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Job updated successfully!")
+        return super().form_valid(form)
 
 
 
@@ -132,6 +156,10 @@ class JobDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         job = self.get_object()
         return self.request.user == job.employer
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Job deleted successfully!")
+        return super().delete(request, *args, **kwargs)
 
 
 @login_required
@@ -149,8 +177,10 @@ def apply_job(request, job_id):
             application.seeker = request.user
             application.status = 'Pending'
             application.save()
+            messages.success(request, "You applied for this job successfully!")  # Added message
             return redirect('job_list')
         else:
+            messages.error(request, "There was an error in your application form. Please correct the issues.")  # Added message
             
             return render(request, 'jobs/apply_job.html', {'job': job, 'form': form})
     else:
@@ -184,6 +214,7 @@ def accept_application(request, application_id):
     if request.method == "POST":
         application.status = 'Accepted'
         application.save()
+        messages.success(request, "You have accepted the applicant.")
     return redirect('dashboard')  
 
 @login_required
@@ -196,4 +227,5 @@ def reject_application(request, application_id):
     if request.method == "POST":
         application.status = 'Rejected'
         application.save()
+        messages.info(request, "You have rejected the applicant.")  # Added message
     return redirect('dashboard')

@@ -49,46 +49,46 @@ smart_job_portal/
 
 ### API
 
-* Create APIs to support key functionalities in addition to your existing application. (You may reimplement the entire application using Django REST Framework (DRF) if you wish, but it's *not required*.)
-* Use JWT authentication
+* Create APIs to support key functionalities in addition to your existing application. (You may reimplement the entire application using Django REST Framework (DRF) if you wish, but it's *not required*.)✅
+* Use JWT authentication✅
 
 ### Authentication
 
-* Email verification & password reset via email
+* Email verification & password reset via email✅
 * Social authentication using Google
 
 ### Redis & Celery
 
-* Redis for caching job listings and throttling
-* Redis for caching Views, Template Fragments,and Low-level caching wherever is needed. 
-* Celery for background tasks (e.g., sending emails, generating thumbnails)
+* Redis for caching job listings ✅ and throttling✅
+* Redis for caching Views, Template Fragments,and Low-level caching wherever is needed. ✅
+* Celery for background tasks (e.g., sending emails, generating thumbnails)✅
 
 ### Profile Management
 
-* UserProfile model with image upload and resume
-* Automatic thumbnail generation on profile picture upload
+* UserProfile model with image upload and resume✅
+* Automatic thumbnail generation on profile picture upload✅
 
 ### Notifications & Logging
 
 * Email + in-app notification system for job approvals and applications
-* User activity tracking via middleware and logging models
+* User activity tracking via middleware and logging models✅
 
 ### Messaging System
 
-* Using Django messages framework (django.contrib.messages).
+* Using Django messages framework (django.contrib.messages).✅
 * Inform users about the result of specific actions, such as successfully creating an object in the database or
 successfully submitting a form.
 * Integrated in views like login, job posting, etc.
 
 ### HTTPS and Security
 
-* Run server using HTTPS in development.
+* Run server using HTTPS in development.✅
 
 
 ### Bonus Features
 
 * Advanced search with elastic search
-* Resume preview & download
+* Resume preview & download✅
 * Dashboard analytics for employers
 
 ---
